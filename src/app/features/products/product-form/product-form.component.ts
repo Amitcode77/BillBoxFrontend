@@ -39,7 +39,8 @@ export class ProductFormComponent implements OnInit {
         description: 'Description for Product A',
         mfdDate: new Date('2024-01-01'),
         expiryDate: new Date('2025-01-01'),
-        price: 100
+        price: 100,
+        quantity: 0 // Default for mock
       };
       this.productForm.patchValue({
         name: mockProduct.name,

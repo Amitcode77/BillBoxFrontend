@@ -1,2 +1,68 @@
-<h2>InvoiceFormComponent</h2>
-<p>Invoice form works!</p> 
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+      <div class="card p-4 shadow">
+        <h3 class="mb-4 text-center">Create Invoice</h3>
+        <form [formGroup]="invoiceForm" (ngSubmit)="addItem()" class="row g-3 align-items-end">
+          <div class="col-md-6">
+            <label for="productId" class="form-label">Product</label>
+            <select id="productId" class="form-select form-select-lg" formControlName="productId">
+              <option value="" disabled>Select product</option>
+              <option *ngFor="let p of products" [value]="p.id">
+                {{ p.name }} (Available: {{ p.available }})
+              </option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label for="quantity" class="form-label">Quantity</label>
+            <input id="quantity" type="number" class="form-control form-control-lg" formControlName="quantity" min="1" />
+          </div>
+          <div class="col-md-2 d-grid">
+            <button type="submit" class="btn btn-success btn-lg w-100" [disabled]="invoiceForm.invalid">
+              Add
+            </button>
+          </div>
+        </form>
+        <div *ngIf="error" class="alert alert-danger text-center mt-3">{{ error }}</div>
+        <div *ngIf="success" class="alert alert-success text-center mt-3">{{ success }}</div>
+        <div class="table-responsive mt-4" *ngIf="invoiceItems.length > 0">
+          <table class="table table-bordered table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Subtotal</th>
+                <th style="width: 60px;">Remove</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of invoiceItems; let i = index">
+                <td>{{ item.name }}</td>
+                <td>{{ item.price | currency }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.price * item.quantity | currency }}</td>
+                <td>
+                  <button class="btn btn-sm btn-danger" (click)="removeItem(i)">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <th colspan="3" class="text-end">Total</th>
+                <th colspan="2">{{ total | currency }}</th>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <div class="d-flex justify-content-end mt-4">
+          <button type="button" class="btn btn-primary px-4" (click)="createInvoice()" [disabled]="invoiceItems.length === 0">
+            Create Invoice
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

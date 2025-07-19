@@ -1,2 +1,57 @@
-<h2>DashboardHomeComponent</h2>
-<p>Dashboard home works!</p> 
+<div class="container py-4">
+  <h2 class="mb-4">Dashboard</h2>
+  <div class="row mb-4">
+    <div class="col-md-4 mb-3">
+      <div class="card text-center shadow h-100">
+        <div class="card-body">
+          <h5 class="card-title">Total Sales Today</h5>
+          <div class="display-5 fw-bold text-primary">{{ totalSalesToday | currency }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 mb-3">
+      <div class="card text-center shadow h-100">
+        <div class="card-body">
+          <h5 class="card-title">Inventory Value</h5>
+          <div class="display-5 fw-bold text-success">{{ inventoryValue | currency }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 mb-3">
+      <div class="card text-center shadow h-100">
+        <div class="card-body">
+          <h5 class="card-title">Low Stock Alerts</h5>
+          <div class="display-5 fw-bold text-danger">{{ lowStockCount }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-8 mb-4">
+      <div class="card shadow h-100">
+        <div class="card-body">
+          <h5 class="card-title">Sales Trends (Dummy)</h5>
+          <canvas baseChart
+            [data]="salesTrendsData"
+            [options]="salesTrendsOptions"
+            [type]="salesTrendsType"
+            [legend]="false">
+          </canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4 mb-4">
+      <div class="card shadow h-100">
+        <div class="card-body">
+          <h5 class="card-title">Top Products (Dummy)</h5>
+          <canvas baseChart
+            [data]="topProductsData"
+            [options]="topProductsOptions"
+            [type]="topProductsType"
+            [legend]="false">
+          </canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 
