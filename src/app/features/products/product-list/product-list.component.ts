@@ -23,7 +23,8 @@ export class ProductListComponent implements OnInit {
         description: 'Description for Product A',
         mfdDate: new Date('2024-01-01'),
         expiryDate: new Date('2025-01-01'),
-        price: 100
+        price: 100,
+        quantity: 10
       },
       {
         id: '2',
@@ -31,7 +32,8 @@ export class ProductListComponent implements OnInit {
         description: 'Description for Product B',
         mfdDate: new Date('2024-02-01'),
         expiryDate: new Date('2025-02-01'),
-        price: 150
+        price: 150,
+        quantity: 5
       },
       {
         id: '3',
@@ -39,7 +41,8 @@ export class ProductListComponent implements OnInit {
         description: 'Description for Product C',
         mfdDate: new Date('2024-03-01'),
         expiryDate: new Date('2025-03-01'),
-        price: 120
+        price: 120,
+        quantity: 20
       }
     ];
     this.filteredProducts = this.products;

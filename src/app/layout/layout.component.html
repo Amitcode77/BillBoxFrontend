@@ -1,0 +1,34 @@
+<div class="app-layout d-flex">
+  <!-- Side Navbar -->
+  <nav class="sidebar bg-light border-end d-flex flex-column p-0">
+    <div class="sidebar-header text-center py-3 border-bottom">
+      <!-- <img src="https://dummyimage.com/40x40/1976d2/fff&text=L" alt="Logo" class="mb-2" style="height:40px;"> -->
+      <div class="fw-bold">BillBox</div>
+    </div>
+    <ul class="nav flex-column mt-3">
+      <li class="nav-item"><a class="nav-link" routerLink="/dashboard" routerLinkActive="active"><i class="bi bi-bar-chart"></i> Dashboard</a></li>
+      <li class="nav-item"><a class="nav-link" routerLink="/sales" routerLinkActive="active"><i class="bi bi-receipt"></i> Store</a></li>
+      <li class="nav-item"><a class="nav-link" routerLink="/products" routerLinkActive="active"><i class="bi bi-box"></i> Products</a></li>
+      <li class="nav-item"><a class="nav-link" routerLink="/stock-update" routerLinkActive="active"><i class="bi bi-arrow-repeat"></i> Stock Update</a></li>
+      <li class="nav-item"><a class="nav-link" routerLink="/users" routerLinkActive="active"><i class="bi bi-people"></i> Users</a></li>
+    </ul>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="main-content flex-grow-1 d-flex flex-column min-vh-100">
+    <!-- Top Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom px-4">
+      <a class="navbar-brand d-lg-none" routerLink="/dashboard">
+        <img src="https://dummyimage.com/40x40/1976d2/fff&text=L" alt="Logo" style="height:32px;">
+        BillBox
+      </a>
+      <div class="ms-auto d-flex align-items-center">
+        <span class="me-3"><i class="bi bi-person-circle"></i> {{ user.name }} ({{ user.role }})</span>
+        <button class="btn btn-outline-danger btn-sm" (click)="logout()"><i class="bi bi-box-arrow-right"></i> Logout</button>
+      </div>
+    </nav>
+    <div class="flex-grow-1 p-4 bg-light">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div> 

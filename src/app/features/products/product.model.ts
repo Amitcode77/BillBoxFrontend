@@ -5,5 +5,5 @@ export interface Product {
   mfdDate: Date;
   expiryDate: Date;
   price: number;
-  // Add more fields as needed
+  quantity: number; // Added for stock tracking
 } 

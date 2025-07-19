@@ -7,11 +7,13 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NotFoundComponent } from './features/not-found/not-found.component';
 import { LoaderInterceptor } from './core/loader.interceptor';
+import { LayoutComponent } from './layout/layout.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    NotFoundComponent
+    NotFoundComponent,
+    LayoutComponent
   ],
   imports: [
     BrowserModule,
