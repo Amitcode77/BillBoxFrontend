@@ -1,0 +1,52 @@
+<div class="modal-invoice-wrapper">
+  <div class="invoice-a4" id="invoiceToPrint">
+    <div *ngIf="invoice; else notFound">
+      <div class="invoice-header d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <img src="https://dummyimage.com/120x40/1976d2/fff&text=LOGO" alt="Logo" style="height:40px;">
+          <h2 class="mt-2 mb-0">INVOICE</h2>
+        </div>
+        <div class="text-end">
+          <div><strong>Invoice #:</strong> {{ invoice.id }}</div>
+          <div><strong>Date:</strong> {{ invoice.date | date: 'mediumDate' }}</div>
+        </div>
+      </div>
+      <div class="invoice-body">
+        <table class="table table-bordered align-middle mb-4">
+          <thead class="table-light">
+            <tr>
+              <th>Product</th>
+              <th>Price</th>
+              <th>Quantity</th>
+              <th>Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of invoice.items">
+              <td>{{ item.name }}</td>
+              <td>{{ item.price | currency }}</td>
+              <td>{{ item.quantity }}</td>
+              <td>{{ item.price * item.quantity | currency }}</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <th colspan="3" class="text-end">Total</th>
+              <th>{{ invoice.total | currency }}</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div class="invoice-footer text-center mt-4 no-print">
+        <button class="btn btn-primary me-2" (click)="printInvoice()">Print</button>
+        <button class="btn btn-secondary me-2" (click)="saveAsPDF()">Save as PDF</button>
+        <button class="btn btn-outline-secondary" (click)="close.emit()">Close</button>
+      </div>
+    </div>
+    <ng-template #notFound>
+      <div class="alert alert-danger text-center">
+        Invoice not found.
+      </div>
+    </ng-template>
+  </div>
+</div> 
