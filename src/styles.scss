@@ -1,1 +1,36 @@
-/* You can add global styles to this file, and also import other style files */
+// Global theme colors (Material palette)
+$primary: #1976d2;
+$accent: #ff4081;
+$warn: #d32f2f;
+$background: #f5f5f5;
+
+body {
+  background: $background;
+  font-family: Roboto, Arial, sans-serif;
+  margin: 0;
+  color: #222;
+}
+
+// Utility classes
+.full-width {
+  width: 100%;
+}
+
+.center-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.error-message {
+  color: $warn;
+  margin-top: 8px;
+  font-size: 0.95rem;
+}
+
+// Card layout for forms
+.form-card {
+  width: 100%;
+  max-width: 400px;
+  margin: 2rem auto;
+}

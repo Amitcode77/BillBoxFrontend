@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { LoaderService } from './core/loader.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -6,5 +8,9 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  title = 'billbox';
+  loaderVisible$: Observable<boolean>;
+
+  constructor(private loaderService: LoaderService) {
+    this.loaderVisible$ = this.loaderService.loading$;
+  }
 }

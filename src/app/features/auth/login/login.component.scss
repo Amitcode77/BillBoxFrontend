@@ -1,0 +1,55 @@
+.login-form {
+  min-height: 100vh;
+  background: transparent;
+}
+
+.center-content {
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-card {
+  padding: 2rem 1.5rem 1.5rem 1.5rem;
+  box-shadow: 0 2px 16px rgba(25, 118, 210, 0.08), 0 1.5px 6px rgba(0,0,0,0.04);
+  border-radius: 12px;
+}
+
+mat-card-title {
+  text-align: center;
+  font-size: 1.6rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+}
+
+mat-form-field.full-width {
+  margin-bottom: 1.2rem;
+}
+
+.login-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+button[mat-raised-button] {
+  min-width: 120px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  padding: 0.6rem 0;
+}
+
+.error-message {
+  color: #d32f2f;
+  margin-top: 8px;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.login-card {
+  max-width: 400px;
+  width: 100%;
+  border-radius: 1rem;
+  background: #fff;
+} 

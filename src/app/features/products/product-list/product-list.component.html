@@ -1,0 +1,80 @@
+<div class="container py-4">
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Search products..."
+        [value]="searchTerm"
+        (input)="onSearchInput($event)"
+      />
+    </div>
+    <div class="col-md-6 text-end">
+      <button class="btn btn-success" routerLink="/products/new">
+        <i class="bi bi-plus-lg"></i> Add Product
+      </button>
+    </div>
+  </div>
+  <div class="table-responsive position-relative">
+    <div *ngIf="loading" class="table-loader-overlay">
+      <div class="custom-loader">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+    </div>
+    <table class="table table-bordered table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th (click)="sortBy('name')" class="sortable">
+            Name
+            <span *ngIf="sortColumn === 'name'">
+              <i [ngClass]="sortDirection === 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'"></i>
+            </span>
+          </th>
+          <th (click)="sortBy('description')" class="sortable">
+            Description
+            <span *ngIf="sortColumn === 'description'">
+              <i [ngClass]="sortDirection === 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'"></i>
+            </span>
+          </th>
+          <th (click)="sortBy('mfdDate')" class="sortable">
+            Mfd Date
+            <span *ngIf="sortColumn === 'mfdDate'">
+              <i [ngClass]="sortDirection === 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'"></i>
+            </span>
+          </th>
+          <th (click)="sortBy('expiryDate')" class="sortable">
+            Expiry Date
+            <span *ngIf="sortColumn === 'expiryDate'">
+              <i [ngClass]="sortDirection === 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'"></i>
+            </span>
+          </th>
+          <th (click)="sortBy('price')" class="sortable">
+            Price
+            <span *ngIf="sortColumn === 'price'">
+              <i [ngClass]="sortDirection === 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'"></i>
+            </span>
+          </th>
+          <th style="width: 120px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let product of filteredProducts">
+          <td>{{ product.name }}</td>
+          <td>{{ product.description }}</td>
+          <td>{{ product.mfdDate | date: 'mediumDate' }}</td>
+          <td>{{ product.expiryDate | date: 'mediumDate' }}</td>
+          <td>{{ product.price | currency }}</td>
+          <td>
+            <button class="btn btn-sm btn-primary me-2" [routerLink]="['/products', product.id]">View</button>
+            <button class="btn btn-sm btn-secondary" [routerLink]="['/products', product.id, 'edit']">Edit</button>
+          </td>
+        </tr>
+        <tr *ngIf="filteredProducts.length === 0 && !loading">
+          <td colspan="6" class="text-center">No products found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div> 
