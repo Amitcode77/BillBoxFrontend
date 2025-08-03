@@ -2,18 +2,19 @@
   <div class="card p-4 shadow login-card">
     <h2 class="text-center mb-4">Login</h2>
     <div class="mb-3">
-      <label for="username" class="form-label">Username</label>
+      <label for="email" class="form-label">Email</label>
       <input
-        id="username"
-        type="text"
+        id="email"
+        type="email"
         class="form-control form-control-lg"
-        formControlName="username"
-        [class.is-invalid]="isUsernameInvalid"
-        autocomplete="username"
+        formControlName="email"
+        [class.is-invalid]="isEmailInvalid"
+        autocomplete="email"
         required
+        placeholder="Enter your email"
       />
-      <div class="invalid-feedback" *ngIf="usernameError">
-        {{ usernameError }}
+      <div class="invalid-feedback" *ngIf="emailError">
+        {{ emailError }}
       </div>
     </div>
     <div class="mb-3">
@@ -26,6 +27,7 @@
         [class.is-invalid]="isPasswordInvalid"
         autocomplete="current-password"
         required
+        placeholder="Enter your password"
       />
       <div class="invalid-feedback" *ngIf="passwordError">
         {{ passwordError }}
@@ -35,9 +37,10 @@
     <button
       type="submit"
       class="btn btn-primary btn-lg w-100"
-      [disabled]="loginForm.invalid"
+      [disabled]="loginForm.invalid || loading"
     >
-      Login
+      <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+      {{ loading ? 'Logging in...' : 'Login' }}
     </button>
   </div>
 </form> 

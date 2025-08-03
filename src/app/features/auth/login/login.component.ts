@@ -11,6 +11,7 @@ import { AuthService } from 'src/app/core/auth.service';
 export class LoginComponent {
   loginForm: FormGroup;
   error: string | null = null;
+  loading = false;
 
   constructor(
     private fb: FormBuilder,
@@ -18,23 +19,26 @@ export class LoginComponent {
     private router: Router
   ) {
     this.loginForm = this.fb.group({
-      username: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
     });
   }
 
-  get username(): AbstractControl | null {
-    return this.loginForm.get('username');
+  get email(): AbstractControl | null {
+    return this.loginForm.get('email');
   }
 
   get password(): AbstractControl | null {
     return this.loginForm.get('password');
   }
 
-  get usernameError(): string | null {
-    if (this.username?.touched && this.username?.invalid) {
-      if (this.username.errors?.['required']) {
-        return 'Username is required';
+  get emailError(): string | null {
+    if (this.email?.touched && this.email?.invalid) {
+      if (this.email.errors?.['required']) {
+        return 'Email is required';
+      }
+      if (this.email.errors?.['email']) {
+        return 'Please enter a valid email address';
       }
     }
     return null;
@@ -49,8 +53,8 @@ export class LoginComponent {
     return null;
   }
 
-  get isUsernameInvalid(): boolean {
-    return !!(this.username && this.username.touched && this.username.invalid);
+  get isEmailInvalid(): boolean {
+    return !!(this.email && this.email.touched && this.email.invalid);
   }
 
   get isPasswordInvalid(): boolean {
@@ -62,16 +66,29 @@ export class LoginComponent {
       this.loginForm.markAllAsTouched();
       return;
     }
-    this.router.navigate(['/dashboard']);
-    // this.error = null;
-    // const { username, password } = this.loginForm.value;
-    // this.authService.login(username, password).subscribe({
-    //   next: () => {
-    //     this.router.navigate(['/dashboard']);
-    //   },
-    //   error: (err) => {
-    //     this.error = err.message || 'Login failed. Please try again.';
-    //   }
-    // });
+
+    this.loading = true;
+    this.error = null;
+
+    const { email, password } = this.loginForm.value;
+    
+    this.authService.login(email, password).subscribe({
+      next: (response) => {
+        if (response.success) {
+          console.log('Login successful:', response.data.user);
+          this.router.navigate(['/dashboard']);
+        } else {
+          this.error = response.message || 'Login failed. Please try again.';
+        }
+      },
+      error: (err) => {
+        console.error('Login error:', err);
+        this.error = err.error?.message || err.message || 'Login failed. Please try again.';
+        this.loading = false;
+      },
+      complete: () => {
+        this.loading = false;
+      }
+    });
   }
 } 

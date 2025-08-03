@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Product } from '../product.model';
+import { Product, ProductApiResponse } from '../product.model';
+import { ApiService } from '../../../core/api.service';
 
 @Component({
   selector: 'app-product-form',
@@ -13,48 +14,74 @@ export class ProductFormComponent implements OnInit {
   isEditMode = false;
   productId: string | null = null;
   error: string | null = null;
+  loading = false;
+
+
 
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private apiService: ApiService
   ) {
     this.productForm = this.fb.group({
       name: ['', Validators.required],
+      category: ['', Validators.required],
       description: ['', Validators.required],
-      mfdDate: ['', Validators.required],
-      expiryDate: ['', Validators.required],
-      price: ['', [Validators.required, Validators.min(0)]]
+      price: ['', [Validators.required, Validators.min(0)]],
+      quantity: ['', [Validators.required, Validators.min(0)]],
+      image: ['']
     });
   }
 
   ngOnInit(): void {
     this.productId = this.route.snapshot.paramMap.get('id');
     this.isEditMode = !!this.productId;
+    
     if (this.isEditMode) {
-      // Simulate loading product data (replace with API call)
-      const mockProduct: Product = {
-        id: this.productId!,
-        name: 'Product A',
-        description: 'Description for Product A',
-        mfdDate: new Date('2024-01-01'),
-        expiryDate: new Date('2025-01-01'),
-        price: 100,
-        quantity: 0 // Default for mock
-      };
-      this.productForm.patchValue({
-        name: mockProduct.name,
-        description: mockProduct.description,
-        mfdDate: this.formatDate(mockProduct.mfdDate),
-        expiryDate: this.formatDate(mockProduct.expiryDate),
-        price: mockProduct.price
-      });
+      // In edit mode, make category, description, and image optional since they're not in update API
+      this.productForm.get('category')?.clearValidators();
+      this.productForm.get('category')?.updateValueAndValidity();
+      this.productForm.get('description')?.clearValidators();
+      this.productForm.get('description')?.updateValueAndValidity();
+      this.productForm.get('image')?.clearValidators();
+      this.productForm.get('image')?.updateValueAndValidity();
+      
+      // Load product data for editing
+      this.loadProductData();
     }
   }
 
-  formatDate(date: Date): string {
-    // Format date as yyyy-MM-dd for input[type=date]
-    return date.toISOString().split('T')[0];
+  private loadProductData() {
+    if (!this.productId) return;
+
+    this.loading = true;
+    this.error = null;
+
+    this.apiService.get<ProductApiResponse>(`/product/${this.productId}`).subscribe({
+      next: (response: ProductApiResponse) => {
+        if (response.success) {
+          const product = response.data;
+          this.productForm.patchValue({
+            name: product.name,
+            category: product.category,
+            description: product.description,
+            price: product.price,
+            quantity: product.quantity,
+            image: product.image || ''
+          });
+        } else {
+          this.error = 'Failed to load product data';
+        }
+      },
+      error: (error: any) => {
+        console.error('Error loading product:', error);
+        this.error = error.message || 'An error occurred while loading product data';
+      },
+      complete: () => {
+        this.loading = false;
+      }
+    });
   }
 
   get f() { return this.productForm.controls; }
@@ -64,15 +91,73 @@ export class ProductFormComponent implements OnInit {
       this.productForm.markAllAsTouched();
       return;
     }
-    // Simulate API call
+
+    this.loading = true;
+    this.error = null;
+
     if (this.isEditMode) {
-      // Update product
-      // ...
+      // Update product - only send fields that can be updated
+      const updateData = {
+        name: this.productForm.value.name,
+        price: this.productForm.value.price,
+        quantity: this.productForm.value.quantity
+      };
+      this.updateProduct(updateData);
     } else {
-      // Add product
-      // ...
+      // Create new product
+      const productData: Product = {
+        name: this.productForm.value.name,
+        category: this.productForm.value.category,
+        description: this.productForm.value.description,
+        price: this.productForm.value.price,
+        quantity: this.productForm.value.quantity,
+        image: this.productForm.value.image || undefined
+      };
+      this.createProduct(productData);
     }
-    // Redirect to product list after save
-    this.router.navigate(['/products']);
+  }
+
+  private createProduct(productData: Product) {
+    this.apiService.post<ProductApiResponse>('/product', productData).subscribe({
+      next: (response: ProductApiResponse) => {
+        if (response.success) {
+          console.log('Product created successfully:', response.data);
+          this.router.navigate(['/products']);
+        } else {
+          this.error = 'Failed to create product';
+        }
+      },
+      error: (error: any) => {
+        console.error('Error creating product:', error);
+        this.error = error.message || 'An error occurred while creating the product';
+        this.loading = false;
+      },
+      complete: () => {
+        this.loading = false;
+      }
+    });
+  }
+
+  private updateProduct(updateData: any) {
+    if (!this.productId) return;
+
+    this.apiService.patch<ProductApiResponse>(`/product/${this.productId}`, updateData).subscribe({
+      next: (response: ProductApiResponse) => {
+        if (response.success) {
+          console.log('Product updated successfully:', response.data);
+          this.router.navigate(['/products']);
+        } else {
+          this.error = 'Failed to update product';
+        }
+      },
+      error: (error: any) => {
+        console.error('Error updating product:', error);
+        this.error = error.message || 'An error occurred while updating the product';
+        this.loading = false;
+      },
+      complete: () => {
+        this.loading = false;
+      }
+    });
   }
 } 

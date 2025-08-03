@@ -23,8 +23,19 @@
         BillBox
       </a>
       <div class="ms-auto d-flex align-items-center">
-        <span class="me-3"><i class="bi bi-person-circle"></i> {{ user.name }} ({{ user.role }})</span>
-        <button class="btn btn-outline-danger btn-sm" (click)="logout()"><i class="bi bi-box-arrow-right"></i> Logout</button>
+        <div class="me-3 text-end">
+          <div class="fw-bold">{{ getUserDisplayName() }}</div>
+          <small class="text-muted">{{ getUserRole() | titlecase }}</small>
+        </div>
+        <button 
+          class="btn btn-outline-danger btn-sm" 
+          (click)="logout()" 
+          [disabled]="loading"
+        >
+          <span *ngIf="loading" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+          <i class="bi bi-box-arrow-right"></i> 
+          {{ loading ? 'Logging out...' : 'Logout' }}
+        </button>
       </div>
     </nav>
     <div class="flex-grow-1 p-4 bg-light">

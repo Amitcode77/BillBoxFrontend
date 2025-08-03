@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Product } from '../product.model';
+import { HttpParams } from '@angular/common/http';
+import { Product, ProductsApiResponse } from '../product.model';
+import { ApiService } from '../../../core/api.service';
 
 @Component({
   selector: 'app-product-list',
@@ -10,42 +12,76 @@ export class ProductListComponent implements OnInit {
   products: Product[] = [];
   filteredProducts: Product[] = [];
   searchTerm = '';
+  selectedCategory = '';
   sortColumn: keyof Product | '' = '';
   sortDirection: 'asc' | 'desc' = 'asc';
   loading = false;
+  error: string | null = null;
+
+  // Pagination
+  currentPage = 1;
+  itemsPerPage = 10;
+  totalItems = 0;
+  totalPages = 0;
+
+  // Categories for filter
+  categories: string[] = [];
+
+  constructor(private apiService: ApiService) {}
 
   ngOnInit(): void {
-    // Mock data for now
-    this.products = [
-      {
-        id: '1',
-        name: 'Product A',
-        description: 'Description for Product A',
-        mfdDate: new Date('2024-01-01'),
-        expiryDate: new Date('2025-01-01'),
-        price: 100,
-        quantity: 10
+    this.loadProducts();
+  }
+
+  loadProducts() {
+    this.loading = true;
+    this.error = null;
+
+    let params = new HttpParams()
+      .set('page', this.currentPage.toString())
+      .set('limit', this.itemsPerPage.toString());
+
+    if (this.searchTerm) {
+      params = params.set('search', this.searchTerm);
+    }
+
+    if (this.selectedCategory) {
+      params = params.set('category', this.selectedCategory);
+    }
+
+    this.apiService.get<ProductsApiResponse>('/product', params).subscribe({
+      next: (response: ProductsApiResponse) => {
+        if (response.success) {
+          this.products = response.data;
+          this.filteredProducts = this.products;
+          this.totalItems = response.pagination.total;
+          this.totalPages = response.pagination.pages;
+          this.currentPage = response.pagination.page;
+          
+          // Extract unique categories for filter dropdown
+          this.extractCategories();
+        } else {
+          this.error = 'Failed to load products';
+        }
       },
-      {
-        id: '2',
-        name: 'Product B',
-        description: 'Description for Product B',
-        mfdDate: new Date('2024-02-01'),
-        expiryDate: new Date('2025-02-01'),
-        price: 150,
-        quantity: 5
+      error: (error: any) => {
+        console.error('Error loading products:', error);
+        this.error = error.message || 'An error occurred while loading products';
       },
-      {
-        id: '3',
-        name: 'Product C',
-        description: 'Description for Product C',
-        mfdDate: new Date('2024-03-01'),
-        expiryDate: new Date('2025-03-01'),
-        price: 120,
-        quantity: 20
+      complete: () => {
+        this.loading = false;
       }
-    ];
-    this.filteredProducts = this.products;
+    });
+  }
+
+  private extractCategories() {
+    const categorySet = new Set<string>();
+    this.products.forEach(product => {
+      if (product.category) {
+        categorySet.add(product.category);
+      }
+    });
+    this.categories = Array.from(categorySet).sort();
   }
 
   onSearchInput(event: Event) {
@@ -53,47 +89,78 @@ export class ProductListComponent implements OnInit {
     this.onSearch(value);
   }
 
-  async onSearch(term: string) {
+  onSearch(term: string) {
     this.searchTerm = term;
-    this.loading = true;
-    // Simulate network call
-    await this.simulateNetworkDelay();
-    const lower = term.toLowerCase();
-    this.filteredProducts = this.products.filter(p =>
-      p.name.toLowerCase().includes(lower) ||
-      p.description.toLowerCase().includes(lower)
-    );
-    if (this.sortColumn) {
-      this.sortBy(this.sortColumn);
-    }
-    this.loading = false;
+    this.currentPage = 1; // Reset to first page when searching
+    this.loadProducts();
   }
 
-  async sortBy(column: keyof Product) {
+  onCategoryChange(category: string) {
+    this.selectedCategory = category;
+    this.currentPage = 1; // Reset to first page when filtering
+    this.loadProducts();
+  }
+
+  onPageChange(page: number) {
+    this.currentPage = page;
+    this.loadProducts();
+  }
+
+  sortBy(column: keyof Product) {
     if (this.sortColumn === column) {
       this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
     } else {
       this.sortColumn = column;
       this.sortDirection = 'asc';
     }
-    this.loading = true;
-    // Simulate network call
-    await this.simulateNetworkDelay();
+    
+    // Sort the current page data
     this.filteredProducts = [...this.filteredProducts].sort((a, b) => {
       let aValue = a[column];
       let bValue = b[column];
-      if (aValue instanceof Date && bValue instanceof Date) {
-        aValue = aValue.getTime();
-        bValue = bValue.getTime();
+      
+      // Handle undefined values
+      if (aValue === undefined && bValue === undefined) return 0;
+      if (aValue === undefined) return this.sortDirection === 'asc' ? -1 : 1;
+      if (bValue === undefined) return this.sortDirection === 'asc' ? 1 : -1;
+      
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        aValue = aValue.toLowerCase();
+        bValue = bValue.toLowerCase();
       }
+      
       if (aValue < bValue) return this.sortDirection === 'asc' ? -1 : 1;
       if (aValue > bValue) return this.sortDirection === 'asc' ? 1 : -1;
       return 0;
     });
-    this.loading = false;
   }
 
-  private simulateNetworkDelay(): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, 500));
+  clearFilters() {
+    this.searchTerm = '';
+    this.selectedCategory = '';
+    this.currentPage = 1;
+    this.loadProducts();
+  }
+
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, this.currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(this.totalPages, startPage + maxVisiblePages - 1);
+    
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+    
+    return pages;
+  }
+
+  // Make Math available in template
+  get Math() {
+    return Math;
   }
 } 

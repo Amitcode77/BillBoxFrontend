@@ -4,22 +4,47 @@
       <div class="card shadow p-4">
         <h3 class="mb-2 text-center">Stock Update (Refill)</h3>
         <p class="text-center text-muted mb-4">Update product stock by adding new quantities. Enter the amount to add for each product and click Save.</p>
-        <form [formGroup]="stockForm" (ngSubmit)="onSubmit()">
+        
+        <!-- Loading State -->
+        <div *ngIf="loading" class="text-center py-4">
+          <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-2">Loading products...</p>
+        </div>
+
+        <!-- Error State -->
+        <div *ngIf="error && !loading" class="alert alert-danger text-center">
+          {{ error }}
+          <button class="btn btn-outline-danger ms-3" (click)="loadProducts()">Retry</button>
+        </div>
+
+        <!-- Success State -->
+        <div *ngIf="success && !loading" class="alert alert-success text-center">
+          {{ success }}
+        </div>
+
+        <!-- Form Content -->
+        <form [formGroup]="stockForm" (ngSubmit)="onSubmit()" *ngIf="!loading && !error">
           <div *ngIf="items.controls.length > 0; else noProducts">
             <div class="table-responsive">
               <table class="table table-bordered align-middle">
                 <thead class="table-light">
                   <tr>
-                    <th>Name</th>
-                    <th>Initial Quantity</th>
-                    <th>New Quantity to Add</th>
-                    <th>Updated Quantity</th>
+                    <th>Product Name</th>
+                    <th>Category</th>
+                    <th>Current Stock</th>
+                    <th>Add Quantity</th>
+                    <th>New Total</th>
                   </tr>
                 </thead>
                 <tbody formArrayName="items">
                   <tr *ngFor="let item of items.controls; let i = index" [formGroupName]="i">
                     <td>
                       <input type="text" class="form-control" formControlName="name" readonly tabindex="-1" />
+                    </td>
+                    <td>
+                      <span class="badge bg-secondary">{{ item.get('category')?.value }}</span>
                     </td>
                     <td>
                       <input type="number" class="form-control" formControlName="initialQuantity" readonly tabindex="-1" />
@@ -39,8 +64,14 @@
                 </tbody>
               </table>
             </div>
-            <div class="text-end mt-4">
-              <button type="submit" class="btn btn-primary px-4" [disabled]="stockForm.invalid">Save</button>
+            <div class="d-flex justify-content-between mt-4">
+              <button type="button" class="btn btn-outline-secondary" (click)="clearForm()">
+                <i class="bi bi-arrow-clockwise"></i> Clear Form
+              </button>
+              <button type="submit" class="btn btn-primary px-4" [disabled]="stockForm.invalid || loading">
+                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Update Stock
+              </button>
             </div>
           </div>
           <ng-template #noProducts>

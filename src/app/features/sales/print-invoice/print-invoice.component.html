@@ -10,13 +10,13 @@
     <p>Email: contact@yourdomain.com</p>
   </div>
 
-  <div class="invoice-details">
-    <p><strong>Invoice No:</strong> INV-000123</p>
-    <p><strong>Date:</strong> 02-Aug-2025 12:45 PM</p>
-    <p><strong>Cashier:</strong> John Doe</p>
+  <div class="invoice-details" *ngIf="invoice">
+    <p><strong>Invoice No:</strong> {{ invoice.invoiceNumber }}</p>
+    <p><strong>Date:</strong> {{ invoice.createdAt | date:'medium' }}</p>
+    <p><strong>Sold By:</strong> {{ invoice.soldBy }}</p>
   </div>
 
-  <table class="items">
+  <table class="items" *ngIf="invoice">
     <thead>
       <tr>
         <th>Product</th>
@@ -26,41 +26,39 @@
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td>Apple iPhone 15</td>
-        <td>1</td>
-        <td>₹79,999</td>
-        <td>₹79,999</td>
-      </tr>
-      <tr>
-        <td>Type-C Cable</td>
-        <td>2</td>
-        <td>₹599</td>
-        <td>₹1,198</td>
-      </tr>
-      <tr>
-        <td>Screen Guard</td>
-        <td>1</td>
-        <td>₹299</td>
-        <td>₹299</td>
+      <tr *ngFor="let item of invoice.items">
+        <td>{{ item.name }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>{{ item.price | currency }}</td>
+        <td>{{ item.total | currency }}</td>
       </tr>
     </tbody>
   </table>
 
-  <div class="totals">
-    <p><strong>Subtotal:</strong> ₹81,496</p>
-    <p><strong>Discount (10%):</strong> -₹8,149.60</p>
-    <p><strong>Tax (18%):</strong> ₹13,162.66</p>
-    <p class="total"><strong>Total:</strong> ₹86,509.06</p>
+  <div class="totals" *ngIf="invoice">
+    <p class="total"><strong>Total:</strong> {{ invoice.totalAmount | currency }}</p>
   </div>
 
-  <div class="payment-info">
-    <p><strong>Payment Mode:</strong> UPI</p>
-    <p><strong>TXN ID:</strong> UPI1234567890</p>
+  <div class="payment-info" *ngIf="invoice">
+    <p><strong>Payment Mode:</strong> {{ invoice.paymentMethod | titlecase }}</p>
   </div>
 
   <div class="footer">
     <p>Thank you for your purchase!</p>
     <p>Visit again - www.yourdomain.com</p>
+  </div>
+</div>
+
+<!-- Print Controls -->
+<div class="print-controls d-print-none">
+  <div class="d-flex justify-content-between align-items-center p-3">
+    <button class="btn btn-secondary" (click)="close.emit()">
+      <i class="bi bi-x-lg"></i> Close
+    </button>
+    <div>
+      <button class="btn btn-primary me-2" (click)="printInvoice()">
+        <i class="bi bi-printer"></i> Print
+      </button>
+    </div>
   </div>
 </div>
