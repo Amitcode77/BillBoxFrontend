@@ -3,7 +3,7 @@
     <div class="col-md-10 col-lg-8">
       <div class="card p-4 shadow">
         <h3 class="mb-4 text-center">Create Invoice</h3>
-        
+
         <!-- Loading State -->
         <div *ngIf="loading" class="text-center py-4">
           <div class="spinner-border" role="status">
@@ -24,7 +24,8 @@
         </div>
 
         <!-- Form Content -->
-        <form [formGroup]="invoiceForm" (ngSubmit)="addItem()" class="row g-3 align-items-end" *ngIf="!loading && !error">
+        <form [formGroup]="invoiceForm" (ngSubmit)="addItem()" class="row g-3 align-items-end"
+          *ngIf="!loading && !error">
           <div class="col-md-5">
             <label for="productId" class="form-label">Product</label>
             <select id="productId" class="form-select form-select-lg" formControlName="productId">
@@ -36,7 +37,8 @@
           </div>
           <div class="col-md-3">
             <label for="quantity" class="form-label">Quantity</label>
-            <input id="quantity" type="number" class="form-control form-control-lg" formControlName="quantity" min="1" />
+            <input id="quantity" type="number" class="form-control form-control-lg" formControlName="quantity"
+              min="1" />
           </div>
           <div class="col-md-4 d-grid">
             <button type="submit" class="btn btn-success btn-lg w-100" [disabled]="invoiceForm.invalid">
@@ -65,7 +67,7 @@
                 <td>{{ item.price * item.quantity | currency }}</td>
                 <td>
                   <button class="btn btn-sm btn-danger" (click)="removeItem(i)">
-                    <i class="bi bi-trash"></i>
+                    &times;
                   </button>
                 </td>
               </tr>
@@ -91,8 +93,10 @@
               </select>
             </div>
             <div class="col-md-6 d-flex align-items-end">
-              <button type="button" class="btn btn-primary btn-lg px-4 w-100" (click)="createInvoice()" [disabled]="invoiceItems.length === 0 || loading">
-                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+              <button type="button" class="btn btn-primary btn-lg px-4 w-100" (click)="createInvoice()"
+                [disabled]="invoiceItems.length === 0 || loading">
+                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status"
+                  aria-hidden="true"></span>
                 <i class="bi bi-receipt"></i> Create Invoice
               </button>
             </div>
@@ -107,4 +111,4 @@
       </div>
     </div>
   </div>
-</div> 
+</div>

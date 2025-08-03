@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { DEFAULT_CURRENCY_CODE, LOCALE_ID, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -22,7 +22,9 @@ import { LayoutComponent } from './layout/layout.component';
     BrowserAnimationsModule
   ],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: LoaderInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: LoaderInterceptor, multi: true },
+    { provide: DEFAULT_CURRENCY_CODE, useValue: '₹' },
+    { provide: LOCALE_ID, useValue: 'en-IN' }, // or 'en-IN'
   ],
   bootstrap: [AppComponent]
 })

@@ -27,13 +27,7 @@ export class InvoiceFormComponent implements OnInit {
   loading = false;
 
   // Payment methods
-  paymentMethods = [
-    { value: 'cash', label: 'Cash' },
-    { value: 'card', label: 'Card' },
-    { value: 'bank_transfer', label: 'Bank Transfer' },
-    { value: 'upi', label: 'UPI' },
-    { value: 'other', label: 'Other' }
-  ];
+  paymentMethods: { value: string, label: string }[] = []
 
   constructor(
     private fb: FormBuilder,
@@ -48,6 +42,12 @@ export class InvoiceFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.paymentMethods = [
+      { value: 'cash', label: 'Cash' },
+      { value: 'card', label: 'Card' },
+      { value: 'upi', label: 'UPI' },
+      { value: 'netbanking', label: 'Net Banking' }
+    ];
     this.loadProducts();
   }
 

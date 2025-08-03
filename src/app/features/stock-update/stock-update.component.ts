@@ -83,7 +83,7 @@ export class StockUpdateComponent implements OnInit {
       name: [p.name],
       category: [p.category],
       initialQuantity: [p.quantity],
-      addQuantity: [null, [Validators.required, Validators.min(0)]],
+      addQuantity: [0, [Validators.min(0)]], 
       updatedQuantity: [{ value: p.quantity, disabled: true }]
     }));
     this.stockForm.setControl('items', this.fb.array(items));
