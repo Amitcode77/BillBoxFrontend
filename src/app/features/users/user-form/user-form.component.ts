@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { User } from '../user.model';
+import { User, UserApiResponse } from '../user.model';
+import { ApiService } from '../../../core/api.service';
 
 @Component({
   selector: 'app-user-form',
@@ -13,42 +14,65 @@ export class UserFormComponent implements OnInit {
   isEditMode = false;
   userId: string | null = null;
   error: string | null = null;
+  loading = false;
 
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private apiService: ApiService
   ) {
     this.userForm = this.fb.group({
-      name: ['', Validators.required],
-      username: ['', Validators.required],
-      phone_number: ['', [Validators.required, Validators.pattern(/^\d{3}-\d{3}-\d{4}$/)]],
-      role_type: ['', Validators.required],
-      isActive: [true, Validators.required]
+      email: ['', [Validators.required, Validators.email]],
+      fullName: ['', Validators.required],
+      phone: ['', [Validators.required, Validators.pattern(/^\+?[\d\s\-\(\)]+$/)]],
+      password: ['', [Validators.required, Validators.minLength(8)]],
+      role: ['', Validators.required]
     });
   }
 
   ngOnInit(): void {
     this.userId = this.route.snapshot.paramMap.get('id');
     this.isEditMode = !!this.userId;
+    
     if (this.isEditMode) {
-      // Simulate loading user data (replace with API call)
-      const mockUser: User = {
-        id: this.userId!,
-        name: 'Alice Smith',
-        username: 'alice',
-        phone_number: '123-456-7890',
-        role_type: 'admin',
-        isActive: true
-      };
-      this.userForm.patchValue({
-        name: mockUser.name,
-        username: mockUser.username,
-        phone_number: mockUser.phone_number,
-        role_type: mockUser.role_type,
-        isActive: mockUser.isActive
-      });
+      // Remove password validation for edit mode
+      this.userForm.get('password')?.clearValidators();
+      this.userForm.get('password')?.updateValueAndValidity();
+      
+      // Load user data for editing
+      this.loadUserData();
     }
+  }
+
+  private loadUserData() {
+    if (!this.userId) return;
+
+    this.loading = true;
+    this.error = null;
+
+    this.apiService.get<UserApiResponse>(`/user/${this.userId}`).subscribe({
+      next: (response: UserApiResponse) => {
+        if (response.success) {
+          const user = response.data;
+          this.userForm.patchValue({
+            email: user.email,
+            fullName: user.fullName,
+            phone: user.phone,
+            role: user.role
+          });
+        } else {
+          this.error = 'Failed to load user data';
+        }
+      },
+      error: (error: any) => {
+        console.error('Error loading user:', error);
+        this.error = error.message || 'An error occurred while loading user data';
+      },
+      complete: () => {
+        this.loading = false;
+      }
+    });
   }
 
   get f() { return this.userForm.controls; }
@@ -58,15 +82,72 @@ export class UserFormComponent implements OnInit {
       this.userForm.markAllAsTouched();
       return;
     }
-    // Simulate API call
+
+    this.loading = true;
+    this.error = null;
+
     if (this.isEditMode) {
-      // Update user
-      // ...
+      // Update user - only send fields that can be updated
+      const updateData = {
+        fullName: this.userForm.value.fullName,
+        phone: this.userForm.value.phone,
+        role: this.userForm.value.role
+      };
+      this.updateUser(updateData);
     } else {
-      // Add user
-      // ...
+      // Create new user
+      const userData: User = {
+        email: this.userForm.value.email,
+        fullName: this.userForm.value.fullName,
+        phone: this.userForm.value.phone,
+        password: this.userForm.value.password,
+        role: this.userForm.value.role
+      };
+      this.createUser(userData);
     }
-    // Redirect to user list after save
-    this.router.navigate(['/users']);
+  }
+
+  private updateUser(updateData: any) {
+    if (!this.userId) return;
+
+    this.apiService.patch<UserApiResponse>(`/user/${this.userId}`, updateData).subscribe({
+      next: (response: UserApiResponse) => {
+        if (response.success) {
+          console.log('User updated successfully:', response.data);
+          this.router.navigate(['/users']);
+        } else {
+          this.error = 'Failed to update user';
+        }
+      },
+      error: (error: any) => {
+        console.error('Error updating user:', error);
+        this.error = error.message || 'An error occurred while updating the user';
+        this.loading = false;
+      },
+      complete: () => {
+        this.loading = false;
+      }
+    });
+  }
+
+  private createUser(userData: User) {
+    this.apiService.post<UserApiResponse>('/user', userData).subscribe({
+      next: (response: UserApiResponse) => {
+        if (response.success) {
+          console.log('User created successfully:', response.data);
+          this.router.navigate(['/users']);
+        } else {
+          this.error = 'Failed to create user';
+        }
+      },
+      error: (error: any) => {
+        console.error('Error creating user:', error);
+        this.error = error.message || 'An error occurred while creating the user';
+        this.loading = false;
+      },
+      complete: () => {
+        this.loading = false;
+      }
+    });
   }
 } 

@@ -1,52 +1,66 @@
-<div class="modal-invoice-wrapper">
-  <div class="invoice-a4" id="invoiceToPrint">
-    <div *ngIf="invoice; else notFound">
-      <div class="invoice-header d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <img src="https://dummyimage.com/120x40/1976d2/fff&text=LOGO" alt="Logo" style="height:40px;">
-          <h2 class="mt-2 mb-0">INVOICE</h2>
-        </div>
-        <div class="text-end">
-          <div><strong>Invoice #:</strong> {{ invoice.id }}</div>
-          <div><strong>Date:</strong> {{ invoice.date | date: 'mediumDate' }}</div>
-        </div>
-      </div>
-      <div class="invoice-body">
-        <table class="table table-bordered align-middle mb-4">
-          <thead class="table-light">
-            <tr>
-              <th>Product</th>
-              <th>Price</th>
-              <th>Quantity</th>
-              <th>Subtotal</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let item of invoice.items">
-              <td>{{ item.name }}</td>
-              <td>{{ item.price | currency }}</td>
-              <td>{{ item.quantity }}</td>
-              <td>{{ item.price * item.quantity | currency }}</td>
-            </tr>
-          </tbody>
-          <tfoot>
-            <tr>
-              <th colspan="3" class="text-end">Total</th>
-              <th>{{ invoice.total | currency }}</th>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-      <div class="invoice-footer text-center mt-4 no-print">
-        <button class="btn btn-primary me-2" (click)="printInvoice()">Print</button>
-        <button class="btn btn-secondary me-2" (click)="saveAsPDF()">Save as PDF</button>
-        <button class="btn btn-outline-secondary" (click)="close.emit()">Close</button>
-      </div>
-    </div>
-    <ng-template #notFound>
-      <div class="alert alert-danger text-center">
-        Invoice not found.
-      </div>
-    </ng-template>
+<div class="invoice-slip" #invoiceSlip>
+  <div class="logo">
+    <img src="assets/logo.png" alt="Company Logo">
   </div>
-</div> 
+  <div class="company-info">
+    <h2>ENTERPRISE NAME</h2>
+    <p>GSTIN: XXABCDE1234F1Z5</p>
+    <p>Address Line 1, City, PIN</p>
+    <p>Phone: +91-9876543210</p>
+    <p>Email: contact@yourdomain.com</p>
+  </div>
+
+  <div class="invoice-details">
+    <p><strong>Invoice No:</strong> INV-000123</p>
+    <p><strong>Date:</strong> 02-Aug-2025 12:45 PM</p>
+    <p><strong>Cashier:</strong> John Doe</p>
+  </div>
+
+  <table class="items">
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>Qty</th>
+        <th>Rate</th>
+        <th>Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Apple iPhone 15</td>
+        <td>1</td>
+        <td>₹79,999</td>
+        <td>₹79,999</td>
+      </tr>
+      <tr>
+        <td>Type-C Cable</td>
+        <td>2</td>
+        <td>₹599</td>
+        <td>₹1,198</td>
+      </tr>
+      <tr>
+        <td>Screen Guard</td>
+        <td>1</td>
+        <td>₹299</td>
+        <td>₹299</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="totals">
+    <p><strong>Subtotal:</strong> ₹81,496</p>
+    <p><strong>Discount (10%):</strong> -₹8,149.60</p>
+    <p><strong>Tax (18%):</strong> ₹13,162.66</p>
+    <p class="total"><strong>Total:</strong> ₹86,509.06</p>
+  </div>
+
+  <div class="payment-info">
+    <p><strong>Payment Mode:</strong> UPI</p>
+    <p><strong>TXN ID:</strong> UPI1234567890</p>
+  </div>
+
+  <div class="footer">
+    <p>Thank you for your purchase!</p>
+    <p>Visit again - www.yourdomain.com</p>
+  </div>
+</div>

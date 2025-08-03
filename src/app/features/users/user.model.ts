@@ -1,8 +1,21 @@
 export interface User {
-  id: string;
-  name: string;
-  username: string;
-  phone_number: string;
-  role_type: string;
-  isActive: boolean;
+  _id?: string;
+  email: string;
+  fullName: string;
+  phone: string;
+  password?: string;
+  role: 'admin' | 'manager' | 'staff';
+  permissions?: string[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface UserApiResponse {
+  success: boolean;
+  data: User;
+}
+
+export interface UsersApiResponse {
+  success: boolean;
+  data: User[];
 } 

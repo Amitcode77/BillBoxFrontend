@@ -2,13 +2,16 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  // Base URL can be set here or injected from environment
-  private readonly baseUrl = '/api';
+  private readonly baseUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    this.baseUrl = environment.apiUrl;
+    console.log(this.baseUrl);
+  }
 
   get<T>(endpoint: string, params?: HttpParams, headers?: HttpHeaders): Observable<T> {
     return this.http.get<T>(`${this.baseUrl}${endpoint}`, { params, headers }).pipe(
@@ -24,6 +27,12 @@ export class ApiService {
 
   put<T>(endpoint: string, body: any, headers?: HttpHeaders): Observable<T> {
     return this.http.put<T>(`${this.baseUrl}${endpoint}`, body, { headers }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  patch<T>(endpoint: string, body: any, headers?: HttpHeaders): Observable<T> {
+    return this.http.patch<T>(`${this.baseUrl}${endpoint}`, body, { headers }).pipe(
       catchError(this.handleError)
     );
   }

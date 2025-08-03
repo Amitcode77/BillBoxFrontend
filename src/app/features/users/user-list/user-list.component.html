@@ -15,35 +15,55 @@
       </button>
     </div>
   </div>
-  <div class="table-responsive">
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="text-center py-4">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2">Loading users...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="alert alert-danger text-center">
+    {{ error }}
+    <button class="btn btn-outline-danger ms-3" (click)="loadUsers()">Retry</button>
+  </div>
+
+  <!-- Users Table -->
+  <div class="table-responsive" *ngIf="!loading && !error">
     <table class="table table-bordered table-hover align-middle">
       <thead class="table-light">
         <tr>
           <th>Name</th>
-          <th>Username</th>
+          <th>Email</th>
           <th>Phone</th>
           <th>Role</th>
-          <th>Status</th>
+          <th>Created</th>
           <th style="width: 120px;">Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let user of filteredUsers">
-          <td>{{ user.name }}</td>
-          <td>{{ user.username }}</td>
-          <td>{{ user.phone_number }}</td>
-          <td>{{ user.role_type }}</td>
+          <td>{{ user.fullName }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.phone }}</td>
           <td>
-            <span class="badge" [ngClass]="user.isActive ? 'bg-success' : 'bg-secondary'">
-              {{ user.isActive ? 'Active' : 'Inactive' }}
+            <span class="badge" [ngClass]="{
+              'bg-danger': user.role === 'admin',
+              'bg-warning': user.role === 'manager',
+              'bg-info': user.role === 'staff'
+            }">
+              {{ user.role | titlecase }}
             </span>
           </td>
+          <td>{{ user.createdAt | date:'short' }}</td>
           <td>
-            <button class="btn btn-sm btn-primary me-2" [routerLink]="['/users', user.id]">View</button>
-            <button class="btn btn-sm btn-secondary" [routerLink]="['/users', user.id, 'edit']">Edit</button>
+            <button class="btn btn-sm btn-primary me-2" [routerLink]="['/users', user._id]">View</button>
+            <button class="btn btn-sm btn-secondary" [routerLink]="['/users', user._id, 'edit']">Edit</button>
           </td>
         </tr>
-        <tr *ngIf="filteredUsers.length === 0">
+        <tr *ngIf="filteredUsers.length === 0 && !loading">
           <td colspan="6" class="text-center">No users found.</td>
         </tr>
       </tbody>
