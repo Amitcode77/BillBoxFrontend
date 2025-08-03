@@ -3,29 +3,50 @@
     <div class="col-md-10 col-lg-8">
       <div class="card p-4 shadow">
         <h3 class="mb-4 text-center">Create Invoice</h3>
-        <form [formGroup]="invoiceForm" (ngSubmit)="addItem()" class="row g-3 align-items-end">
-          <div class="col-md-6">
+        
+        <!-- Loading State -->
+        <div *ngIf="loading" class="text-center py-4">
+          <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-2">Loading products...</p>
+        </div>
+
+        <!-- Error State -->
+        <div *ngIf="error && !loading" class="alert alert-danger text-center">
+          {{ error }}
+          <button class="btn btn-outline-danger ms-3" (click)="loadProducts()">Retry</button>
+        </div>
+
+        <!-- Success State -->
+        <div *ngIf="success && !loading" class="alert alert-success text-center">
+          {{ success }}
+        </div>
+
+        <!-- Form Content -->
+        <form [formGroup]="invoiceForm" (ngSubmit)="addItem()" class="row g-3 align-items-end" *ngIf="!loading && !error">
+          <div class="col-md-5">
             <label for="productId" class="form-label">Product</label>
             <select id="productId" class="form-select form-select-lg" formControlName="productId">
               <option value="" disabled>Select product</option>
-              <option *ngFor="let p of products" [value]="p.id">
-                {{ p.name }} (Available: {{ p.available }})
+              <option *ngFor="let p of products" [value]="p._id">
+                {{ p.name }} (Stock: {{ p.quantity }})
               </option>
             </select>
           </div>
-          <div class="col-md-4">
+          <div class="col-md-3">
             <label for="quantity" class="form-label">Quantity</label>
             <input id="quantity" type="number" class="form-control form-control-lg" formControlName="quantity" min="1" />
           </div>
-          <div class="col-md-2 d-grid">
+          <div class="col-md-4 d-grid">
             <button type="submit" class="btn btn-success btn-lg w-100" [disabled]="invoiceForm.invalid">
-              Add
+              <i class="bi bi-plus-lg"></i> Add Item
             </button>
           </div>
         </form>
-        <div *ngIf="error" class="alert alert-danger text-center mt-3">{{ error }}</div>
-        <div *ngIf="success" class="alert alert-success text-center mt-3">{{ success }}</div>
-        <div class="table-responsive mt-4" *ngIf="invoiceItems.length > 0">
+
+        <!-- Invoice Items Table -->
+        <div class="table-responsive mt-4" *ngIf="invoiceItems.length > 0 && !loading">
           <table class="table table-bordered table-hover align-middle">
             <thead class="table-light">
               <tr>
@@ -52,15 +73,36 @@
             <tfoot>
               <tr>
                 <th colspan="3" class="text-end">Total</th>
-                <th colspan="2">{{ total | currency }}</th>
+                <th colspan="2"><strong>{{ total | currency }}</strong></th>
               </tr>
             </tfoot>
           </table>
         </div>
-        <div class="d-flex justify-content-end mt-4">
-          <button type="button" class="btn btn-primary px-4" (click)="createInvoice()" [disabled]="invoiceItems.length === 0">
-            Create Invoice
-          </button>
+
+        <!-- Payment Method and Create Invoice -->
+        <div class="mt-4" *ngIf="invoiceItems.length > 0 && !loading">
+          <div class="row">
+            <div class="col-md-6">
+              <label for="paymentMethod" class="form-label">Payment Method</label>
+              <select id="paymentMethod" class="form-select form-select-lg" formControlName="paymentMethod">
+                <option *ngFor="let method of paymentMethods" [value]="method.value">
+                  {{ method.label }}
+                </option>
+              </select>
+            </div>
+            <div class="col-md-6 d-flex align-items-end">
+              <button type="button" class="btn btn-primary btn-lg px-4 w-100" (click)="createInvoice()" [disabled]="invoiceItems.length === 0 || loading">
+                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                <i class="bi bi-receipt"></i> Create Invoice
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="invoiceItems.length === 0 && !loading && !error" class="text-center py-4">
+          <i class="bi bi-cart-plus display-1 text-muted"></i>
+          <p class="text-muted mt-3">Add products to create an invoice</p>
         </div>
       </div>
     </div>

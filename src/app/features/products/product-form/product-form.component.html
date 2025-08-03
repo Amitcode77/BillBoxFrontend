@@ -5,47 +5,89 @@
         <h3 class="mb-4 text-center">{{ isEditMode ? 'Edit Product' : 'Add Product' }}</h3>
         <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
           <div class="mb-3">
-            <label for="name" class="form-label">Name</label>
+            <label for="name" class="form-label">Product Name</label>
             <input id="name" type="text" class="form-control form-control-lg" formControlName="name" />
             <div class="invalid-feedback d-block" *ngIf="f['name'].touched && f['name'].invalid">
-              Name is required
+              Product name is required
             </div>
           </div>
+          
+          <div class="mb-3">
+            <label for="category" class="form-label">Category</label>
+            <input 
+              id="category" 
+              type="text" 
+              class="form-control form-control-lg" 
+              formControlName="category" 
+              placeholder="e.g., Electronics, Clothing, Books"
+              [readonly]="isEditMode"
+              [class.bg-light]="isEditMode"
+            />
+            <div class="invalid-feedback d-block" *ngIf="f['category'].touched && f['category'].invalid">
+              Category is required
+            </div>
+            <div class="form-text" *ngIf="isEditMode">Category cannot be changed in edit mode</div>
+          </div>
+          
           <div class="mb-3">
             <label for="description" class="form-label">Description</label>
-            <textarea id="description" class="form-control form-control-lg" formControlName="description" rows="2"></textarea>
+            <textarea 
+              id="description" 
+              class="form-control form-control-lg" 
+              formControlName="description" 
+              rows="3"
+              [readonly]="isEditMode"
+              [class.bg-light]="isEditMode"
+            ></textarea>
             <div class="invalid-feedback d-block" *ngIf="f['description'].touched && f['description'].invalid">
               Description is required
             </div>
+            <div class="form-text" *ngIf="isEditMode">Description cannot be changed in edit mode</div>
           </div>
+          
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label for="mfdDate" class="form-label">Mfd Date</label>
-              <input id="mfdDate" type="date" class="form-control form-control-lg" formControlName="mfdDate" />
-              <div class="invalid-feedback d-block" *ngIf="f['mfdDate'].touched && f['mfdDate'].invalid">
-                Mfd Date is required
+              <label for="price" class="form-label">Price</label>
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                <input id="price" type="number" class="form-control form-control-lg" formControlName="price" min="0" step="0.01" />
+              </div>
+              <div class="invalid-feedback d-block" *ngIf="f['price'].touched && f['price'].invalid">
+                <span *ngIf="f['price'].errors?.['required']">Price is required</span>
+                <span *ngIf="f['price'].errors?.['min']">Price must be at least 0</span>
               </div>
             </div>
             <div class="col-md-6 mb-3">
-              <label for="expiryDate" class="form-label">Expiry Date</label>
-              <input id="expiryDate" type="date" class="form-control form-control-lg" formControlName="expiryDate" />
-              <div class="invalid-feedback d-block" *ngIf="f['expiryDate'].touched && f['expiryDate'].invalid">
-                Expiry Date is required
+              <label for="quantity" class="form-label">Quantity</label>
+              <input id="quantity" type="number" class="form-control form-control-lg" formControlName="quantity" min="0" />
+              <div class="invalid-feedback d-block" *ngIf="f['quantity'].touched && f['quantity'].invalid">
+                <span *ngIf="f['quantity'].errors?.['required']">Quantity is required</span>
+                <span *ngIf="f['quantity'].errors?.['min']">Quantity must be at least 0</span>
               </div>
             </div>
           </div>
+          
           <div class="mb-3">
-            <label for="price" class="form-label">Price</label>
-            <input id="price" type="number" class="form-control form-control-lg" formControlName="price" min="0" />
-            <div class="invalid-feedback d-block" *ngIf="f['price'].touched && f['price'].invalid">
-              <span *ngIf="f['price'].errors?.['required']">Price is required</span>
-              <span *ngIf="f['price'].errors?.['min']">Price must be at least 0</span>
-            </div>
+            <label for="image" class="form-label">Image URL (Optional)</label>
+            <input 
+              id="image" 
+              type="url" 
+              class="form-control form-control-lg" 
+              formControlName="image" 
+              placeholder="https://example.com/image.jpg"
+              [readonly]="isEditMode"
+              [class.bg-light]="isEditMode"
+            />
+            <div class="form-text" *ngIf="!isEditMode">Provide a URL to the product image</div>
+            <div class="form-text" *ngIf="isEditMode">Image URL cannot be changed in edit mode</div>
           </div>
+          
           <div *ngIf="error" class="alert alert-danger text-center">{{ error }}</div>
+          
           <div class="d-flex justify-content-between mt-4">
-            <button type="button" class="btn btn-outline-secondary" routerLink="/products">Cancel</button>
-            <button type="submit" class="btn btn-primary px-4" [disabled]="productForm.invalid">
+            <button type="button" class="btn btn-outline-secondary" routerLink="/products" [disabled]="loading">Cancel</button>
+            <button type="submit" class="btn btn-primary px-4" [disabled]="productForm.invalid || loading">
+              <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
               {{ isEditMode ? 'Update' : 'Add' }} Product
             </button>
           </div>

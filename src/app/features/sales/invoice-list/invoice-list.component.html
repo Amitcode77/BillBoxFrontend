@@ -9,31 +9,62 @@
       </button>
     </div>
   </div>
-  <div class="table-responsive">
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="text-center py-4">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2">Loading invoices...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="alert alert-danger text-center">
+    {{ error }}
+    <button class="btn btn-outline-danger ms-3" (click)="loadInvoices()">Retry</button>
+  </div>
+
+  <!-- Invoices Table -->
+  <div class="table-responsive" *ngIf="!loading && !error">
     <table class="table table-bordered table-hover align-middle">
       <thead class="table-light">
         <tr>
-          <th>Invoice ID</th>
+          <th>Invoice Number</th>
           <th>Date</th>
-          <th>Items</th>
-          <th>Total</th>
+          <!-- <th>Items</th> -->
+          <th>Total Amount</th>
+          <th>Payment Method</th>
           <th style="width: 120px;">Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let invoice of invoices">
-          <td>{{ invoice.id }}</td>
-          <td>{{ invoice.date | date: 'medium' }}</td>
           <td>
+            <strong>{{ invoice.invoiceNumber }}</strong>
+          </td>
+          <td>{{ invoice.createdAt | date: 'medium' }}</td>
+          <!-- <td>
             <ul class="mb-0 ps-3">
               <li *ngFor="let item of invoice.items">
-                {{ item.name }} (x{{ item.quantity }})
+                {{ item.name }} (x{{ item.quantity }}) - {{ item.total | currency }}
               </li>
             </ul>
-          </td>
-          <td>{{ invoice.total | currency }}</td>
+          </td> -->
           <td>
-            <button class="btn btn-sm btn-primary me-2" [routerLink]="['/sales', invoice.id]">View</button>
+            <strong>{{ invoice.totalAmount | currency }}</strong>
+          </td>
+          <td>
+            <span class="badge" [ngClass]="{
+              'bg-success': invoice.paymentMethod === 'cash',
+              'bg-info': invoice.paymentMethod === 'card',
+              'bg-warning': invoice.paymentMethod === 'bank_transfer',
+              'bg-secondary': invoice.paymentMethod === 'other'
+            }">
+              {{ invoice.paymentMethod | titlecase }}
+            </span>
+          </td>
+          <td>
+            <button class="btn btn-sm btn-primary me-2" [routerLink]="['/sales', invoice._id]">View</button>
             <button class="btn btn-sm btn-secondary" (click)="openPrintInvoice(invoice)">Print</button>
           </td>
         </tr>
@@ -43,6 +74,7 @@
       </tbody>
     </table>
   </div>
+
   <!-- Print Invoice Modal -->
   <div class="modal fade show d-block" tabindex="-1" *ngIf="showPrintInvoice && selectedInvoice" style="background:rgba(0,0,0,0.4);">
     <div class="modal-dialog modal-lg modal-dialog-centered">

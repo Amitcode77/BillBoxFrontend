@@ -1,18 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-
-interface InvoiceItem {
-  productId: string;
-  name: string;
-  price: number;
-  quantity: number;
-}
-
-export interface Invoice {
-  id: string;
-  date: Date;
-  items: InvoiceItem[];
-  total: number;
-}
+import { Invoice, InvoicesApiResponse } from '../invoice.model';
+import { ApiService } from '../../../core/api.service';
+import { ProductMappingService } from '../product-mapping.service';
 
 @Component({
   selector: 'app-invoice-list',
@@ -23,28 +12,59 @@ export class InvoiceListComponent implements OnInit {
   invoices: Invoice[] = [];
   showPrintInvoice = false;
   selectedInvoice: Invoice | null = null;
+  loading = false;
+  error: string | null = null;
+  productsLoaded = false;
+
+  constructor(
+    private apiService: ApiService,
+    private productMappingService: ProductMappingService
+  ) {}
 
   ngOnInit(): void {
-    // Mock data for now
-    this.invoices = [
-      {
-        id: 'INV-001',
-        date: new Date('2025-07-19T10:00:00'),
-        items: [
-          { productId: '1', name: 'Product A', price: 100, quantity: 2 },
-          { productId: '2', name: 'Product B', price: 150, quantity: 1 }
-        ],
-        total: 350
-      },
-      {
-        id: 'INV-002',
-        date: new Date('2025-07-18T15:30:00'),
-        items: [
-          { productId: '3', name: 'Product C', price: 120, quantity: 3 }
-        ],
-        total: 360
+    // Load products mapping first, then load invoices
+    this.productMappingService.loadProducts().subscribe(
+      (loaded: boolean) => {
+        this.productsLoaded = loaded;
+        this.loadInvoices();
       }
-    ];
+    );
+  }
+
+  loadInvoices() {
+    this.loading = true;
+    this.error = null;
+
+    this.apiService.get<InvoicesApiResponse>('/invoice').subscribe({
+      next: (response: InvoicesApiResponse) => {
+        if (response.success) {
+          this.invoices = response.data;
+          // Resolve product names for all invoices
+          this.resolveProductNames();
+        } else {
+          this.error = 'Failed to load invoices';
+        }
+      },
+      error: (error: any) => {
+        console.error('Error loading invoices:', error);
+        this.error = error.message || 'An error occurred while loading invoices';
+      },
+      complete: () => {
+        this.loading = false;
+      }
+    });
+  }
+
+  private resolveProductNames() {
+    this.invoices.forEach(invoice => {
+      if (invoice.items) {
+        invoice.items.forEach(item => {
+          if (item.product && !item.name) {
+            item.name = this.productMappingService.getProductName(item.product);
+          }
+        });
+      }
+    });
   }
 
   openPrintInvoice(invoice: Invoice) {

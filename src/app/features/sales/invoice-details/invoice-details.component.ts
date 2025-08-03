@@ -1,19 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-
-interface InvoiceItem {
-  productId: string;
-  name: string;
-  price: number;
-  quantity: number;
-}
-
-interface Invoice {
-  id: string;
-  date: Date;
-  items: InvoiceItem[];
-  total: number;
-}
+import { Invoice, InvoiceApiResponse } from '../invoice.model';
+import { ApiService } from '../../../core/api.service';
+import { ProductMappingService } from '../product-mapping.service';
 
 @Component({
   selector: 'app-invoice-details',
@@ -22,37 +11,73 @@ interface Invoice {
 })
 export class InvoiceDetailsComponent implements OnInit {
   invoice: Invoice | null = null;
+  loading = false;
+  error: string | null = null;
+  invoiceId: string | null = null;
+  productsLoaded = false;
 
-  constructor(private route: ActivatedRoute, private router: Router) {}
+  constructor(
+    private route: ActivatedRoute, 
+    private router: Router,
+    private apiService: ApiService,
+    private productMappingService: ProductMappingService
+  ) {}
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    // Mock data for now
-    if (id === 'INV-001') {
-      this.invoice = {
-        id: 'INV-001',
-        date: new Date('2025-07-19T10:00:00'),
-        items: [
-          { productId: '1', name: 'Product A', price: 100, quantity: 2 },
-          { productId: '2', name: 'Product B', price: 150, quantity: 1 }
-        ],
-        total: 350
-      };
-    } else if (id === 'INV-002') {
-      this.invoice = {
-        id: 'INV-002',
-        date: new Date('2025-07-18T15:30:00'),
-        items: [
-          { productId: '3', name: 'Product C', price: 120, quantity: 3 }
-        ],
-        total: 360
-      };
-    } else {
-      this.invoice = null;
+    this.invoiceId = this.route.snapshot.paramMap.get('id');
+    
+    // Load products mapping first, then load invoice
+    this.productMappingService.loadProducts().subscribe(
+      (loaded: boolean) => {
+        this.productsLoaded = loaded;
+        if (this.invoiceId) {
+          this.loadInvoice(this.invoiceId);
+        }
+      }
+    );
+  }
+
+  loadInvoice(id: string) {
+    this.loading = true;
+    this.error = null;
+
+    this.apiService.get<InvoiceApiResponse>(`/invoice/${id}`).subscribe({
+      next: (response: InvoiceApiResponse) => {
+        if (response.success) {
+          this.invoice = response.data;
+          // Resolve product names
+          this.resolveProductNames();
+        } else {
+          this.error = 'Failed to load invoice';
+        }
+      },
+      error: (error: any) => {
+        console.error('Error loading invoice:', error);
+        this.error = error.message || 'An error occurred while loading the invoice';
+      },
+      complete: () => {
+        this.loading = false;
+      }
+    });
+  }
+
+  private resolveProductNames() {
+    if (this.invoice && this.invoice.items) {
+      this.invoice.items.forEach(item => {
+        if (item.product && !item.name) {
+          item.name = this.productMappingService.getProductName(item.product);
+        }
+      });
     }
   }
 
-  printInvoice() {
-    window.print();
+  retry() {
+    if (this.invoiceId) {
+      this.loadInvoice(this.invoiceId);
+    }
+  }
+
+  goBack() {
+    this.router.navigate(['/sales']);
   }
 } 
